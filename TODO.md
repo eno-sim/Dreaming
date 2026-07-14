@@ -4,84 +4,61 @@
 
 ## 1. Workspace setup
 
-- [ ] Create the root workspace structure:
-  - [ ] `/server` — Express API and persistence adapters
-  - [ ] `/client` — React/Vite UI
-- [ ] Add root-level project documentation and shared `.gitignore`
-- [ ] Add setup and run scripts for backend and frontend
+- [x] Create `/server` and `/client`
+- [x] Add root-level documentation and shared `.gitignore`
+- [x] Add package scripts for backend and frontend
 - [ ] Confirm the project runs locally with a clean install
 
 ## 2. Backend foundation
 
-- [ ] Initialize the Node.js/Express server
-- [ ] Add environment configuration for the server port and SQLite database path
-- [ ] Define the `StorageInterface` (the application-facing storage contract)
-- [ ] Implement `SQLiteAdapter` behind that interface
-- [ ] Create the SQLite schema:
-  - [ ] `id` — database-generated primary key
-  - [ ] `timestamp` — DateTime
-  - [ ] `content` — Text
-  - [ ] `is_lucid` — Boolean
-  - [ ] `lucidity_level` — Integer, constrained to 1–5
-  - [ ] `dream_type` — String enum: `SAMSARIC`, `CLARITY`, `CLEAR_LIGHT`
-  - [ ] `themes` — Text containing a JSON array of keyword strings
-  - [ ] `dream_signs` — Text containing a JSON array of strings
-  - [ ] `practice_notes` — Text
-- [ ] Add storage methods to create and list dreams
-- [ ] Serialize `themes` and `dream_signs` arrays to JSON text in the SQLite adapter
-- [ ] Deserialize `themes` and `dream_signs` back to arrays when reading dreams
-- [ ] Add API validation for DateTime, Boolean, lucidity range, dream-type enum, and string arrays
-- [ ] Add API routes:
-  - [ ] `POST /api/dreams` — save a dream
-  - [ ] `GET /api/dreams` — fetch dreams
-- [ ] Add request validation and consistent error responses
-- [ ] Add a health check endpoint
-- [ ] Keep route handlers independent from SQLite by injecting the storage adapter
-- [ ] Add an empty `AIInterface` and placeholder adapter for Day 2; do not implement AI behavior
+- [x] Initialize the Node.js/Express server
+- [x] Add environment configuration for server port and SQLite path
+- [x] Define `StorageInterface`
+- [x] Implement `SQLiteAdapter`
+- [x] Create the SQLite schema with `id`, `timestamp`, `content`, `is_lucid`, `lucidity_level`, `dream_type`, `themes`, `dream_signs`, and `practice_notes`
+- [x] Serialize JSON fields only in the storage adapter and deserialize them on reads
+- [x] Add API validation for dates, booleans, ranges, enum values, and arrays
+- [x] Add `POST /api/dreams`, `GET /api/dreams`, and `GET /api/health`
+- [x] Add consistent validation, not-found, and server-error responses
+- [x] Keep routes independent from SQLite through dependency injection
+- [x] Add empty `AIInterface` and `PlaceholderAIAdapter`; no AI logic
 
 ## 3. Frontend foundation
 
-- [ ] Initialize React with Vite
-- [ ] Configure Tailwind CSS
-- [ ] Add the app shell and responsive layout
-- [ ] Build a distraction-free dream input form
-- [ ] Add lucid-dream selection/toggle
-- [ ] Add a lucidity-level control constrained to 1–5
-- [ ] Add dream-type selection for `SAMSARIC`, `CLARITY`, and `CLEAR_LIGHT`
-- [ ] Add optional themes, dream signs, and practice-notes fields
-- [ ] Submit the complete dream model to the backend API
-- [ ] Build a feed for previously logged dreams
-- [ ] Add loading, empty, success, and error states
-- [ ] Add refresh/update behavior after saving a dream
+- [x] Initialize React with Vite
+- [x] Configure Tailwind CSS
+- [x] Add responsive app shell
+- [x] Build distraction-free dream form
+- [x] Add lucid toggle and 1–5 lucidity control
+- [x] Add dream type, themes, dream signs, and practice notes
+- [x] Submit the complete dream model
+- [x] Build newest-first dream feed
+- [x] Add loading, empty, success, and error states
+- [x] Refresh the feed after saving
 
 ## 4. Cozy magical design
 
-- [ ] Define a soft nighttime color palette and typography
-- [ ] Add rounded cards, gentle shadows, gradients, and subtle texture
-- [ ] Add small magical details and restrained animations
-- [ ] Ensure the writing area remains calm and distraction-free
-- [ ] Check mobile and desktop layouts
-- [ ] Verify keyboard focus states and readable contrast
+- [x] Add soft nighttime palette and typography
+- [x] Add rounded cards, gentle shadows, gradients, and texture
+- [x] Add subtle stars and restrained transitions
+- [x] Keep the writing area calm and distraction-free
+- [x] Add responsive layout and visible focus states
+- [ ] Perform a final contrast/accessibility review in a browser
 
 ## 5. Verification and handoff
 
-- [ ] Test creating a normal dream
-- [ ] Test creating a lucid dream
-- [ ] Test lucidity levels 1 and 5, and reject values outside 1–5
-- [ ] Test each valid dream type and reject unknown types
-- [ ] Test themes and dream signs round-trip as JSON arrays
-- [ ] Test optional practice notes
-- [ ] Test fetching an empty feed
-- [ ] Test fetching multiple dreams and ordering them newest first
-- [ ] Test invalid/empty input
-- [ ] Verify the frontend handles an unavailable API gracefully
-- [ ] Run the production build for both `/server` and `/client`
-- [ ] Update `README.md` with final setup and usage instructions
-- [ ] Record Day 2 follow-ups for the AI adapter and dream insights
+- [x] Add tests for valid dreams and complete model round-trip
+- [x] Test lucidity bounds and dream-type validation
+- [x] Test newest-first ordering
+- [ ] Install dependencies and run backend tests
+- [ ] Run production builds for backend and frontend
+- [ ] Manually verify API-offline behavior in the frontend
+- [x] Update `README.md` with setup, API, and model documentation
+- [x] Record Day 2 AI adapter follow-up
 
 ## Definition of done for today
 
-- A user can open the React app, write a dream, mark it lucid, save it, and see it in the feed.
-- Dream persistence works through the `StorageInterface` and `SQLiteAdapter`.
-- No AI logic is implemented yet, but its extension point is documented and ready.
+- A user can write a dream, mark it lucid, save it, and see it in the feed.
+- Dream persistence works through `StorageInterface` and `SQLiteAdapter`.
+- No AI logic is implemented, but its extension point is documented and ready.
 - A fresh clone can be installed and run using the commands in `README.md`.

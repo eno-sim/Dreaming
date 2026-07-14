@@ -1,33 +1,14 @@
 # Dreaming
 
-Dreaming is an AI-powered dream journal MVP: a quiet, cozy place to capture dreams before they fade. The first milestone focuses on dependable journaling and a polished foundation; AI-powered reflection will be added on Day 2.
-
-## Project goals
-
-- Make recording a dream fast, calm, and distraction-free.
-- Persist dream entries locally with SQLite.
-- Keep external dependencies behind adapters so they can be replaced without rewriting application logic.
-- Leave a clear extension point for future AI analysis.
+Dreaming is an AI-powered dream journal MVP: a quiet, cozy place to capture dreams before they fade. Day 1 focuses on dependable journaling and a polished foundation; AI-powered reflection is reserved for Day 2.
 
 ## MVP scope
 
-### Day 1 — foundation
-
-- React/Vite frontend with a cute, cozy, magical visual style
-- Express backend
-- SQLite persistence
-- Create and list dream entries
-- Lucid-dream flag
-- Storage adapter contract and SQLite implementation
-- Empty AI interface/adapter for tomorrow
-
-### Day 2 — planned
-
-- Connect an AI provider through the AI adapter
-- Generate optional dream reflections, themes, or insights
-- Add the minimum UI needed to display those insights
-
-AI behavior is intentionally **not implemented yet**.
+- React/Vite/Tailwind frontend with a cute, cozy, magical visual style
+- Express API with SQLite persistence
+- Complete dream capture and newest-first feed
+- Storage and future AI dependencies behind replaceable adapters
+- Placeholder AI interface only — no AI behavior is implemented yet
 
 ## Architecture
 
@@ -36,60 +17,77 @@ AI behavior is intentionally **not implemented yet**.
           |
           | HTTP JSON API
           v
-/server (Express routes/controllers)
+/server (Express routes + validation)
           |
           | StorageInterface
           v
 SQLiteAdapter  --->  SQLite database
 
-Future:
-Application services ---> AIInterface ---> AI adapter/provider
+Future: application services ---> AIInterface ---> provider adapter
 ```
 
-The API and application code depend on interfaces/contracts rather than concrete vendors. SQLite can therefore be replaced later with another storage adapter, and the future AI provider can be swapped without coupling it to the routes or React components.
+Routes depend on `StorageInterface`, not on SQLite directly. `SQLiteAdapter` is responsible for database details and for converting `themes` and `dream_signs` between application arrays and SQLite JSON text. The future AI provider will follow the same Adapter Pattern.
 
 ## Data model
 
-The initial `dreams` table contains:
+The `dreams` table contains the following fields. `id` is the database-generated primary key.
 
-| Column | Purpose |
-| --- | --- |
-| `id` | Unique dream identifier |
-| `timestamp` | When the dream was recorded |
-| `content` | The dream journal text |
-| `is_lucid` | Boolean; whether the dream was lucid (`0`/`1` in SQLite) |
-| `lucidity_level` | Integer from 1 to 5 |
-| `dream_type` | String; one of `SAMSARIC`, `CLARITY`, or `CLEAR_LIGHT` |
-| `themes` | Text containing a JSON array of keyword strings |
-| `dream_signs` | Text containing a JSON array of dream-sign strings |
-| `practice_notes` | Notes about practices or follow-up reflection |
+| Column | Type | Purpose |
+| --- | --- | --- |
+| `id` | Integer | Database-generated unique dream identifier |
+| `timestamp` | DateTime | When the dream was recorded; stored as an ISO string in SQLite |
+| `content` | Text | The dream journal text |
+| `is_lucid` | Boolean | Whether the dream was lucid; stored as `0`/`1` in SQLite |
+| `lucidity_level` | Integer | Whole number from 1 to 5 |
+| `dream_type` | String | One of `SAMSARIC`, `CLARITY`, or `CLEAR_LIGHT` |
+| `themes` | Text | JSON array of keyword strings in SQLite; array at the API boundary |
+| `dream_signs` | Text | JSON array of strings in SQLite; array at the API boundary |
+| `practice_notes` | Text | Optional notes about practice or follow-up reflection |
+
+The API validates all fields. `content`, `is_lucid`, `lucidity_level`, `dream_type`, `themes`, and `dream_signs` are required; `timestamp` defaults to the current time and `practice_notes` defaults to an empty string.
+
+## API
+
+| Method | Route | Description |
+| --- | --- | --- |
+| `GET` | `/api/health` | Check that the API is running |
+| `GET` | `/api/dreams` | Return saved dreams, newest first |
+| `POST` | `/api/dreams` | Validate and save a dream |
+
 Example request:
 
 ```json
 {
+  "timestamp": "2026-07-14T07:30:00.000Z",
   "content": "I was floating through a library made of clouds.",
-  "is_lucid": true
+  "is_lucid": true,
+  "lucidity_level": 4,
+  "dream_type": "CLARITY",
+  "themes": ["flying", "library", "wonder"],
+  "dream_signs": ["impossible architecture"],
+  "practice_notes": "Notice impossible rooms during tomorrow's reality checks."
 }
 ```
+
+The response keeps `themes` and `dream_signs` as JSON arrays. Invalid dates, booleans, lucidity levels outside 1–5, unknown dream types, empty content, or non-string array entries return `400`.
 
 ## Workspace layout
 
 ```text
 Dreaming/
 ├── client/              # React/Vite/Tailwind frontend
-├── server/              # Express API and adapters
-├── README.md            # Project overview and setup
-└── TODO.md              # Day 1 delivery checklist
+├── server/              # Express API, validation, contracts, and adapters
+├── README.md
+├── TODO.md
+└── .gitignore
 ```
 
 ## Setup
 
-> The implementation files will be added as we work through `TODO.md`.
-
 ### Prerequisites
 
 - Node.js 20+
-- npm 10+
+- npm 9+
 
 ### Install
 
@@ -102,43 +100,40 @@ npm install --prefix client
 
 ### Run in development
 
-Start the backend in one terminal:
+Terminal 1 — backend:
 
 ```bash
 cd server
 npm run dev
 ```
 
-Start the frontend in another terminal:
+Terminal 2 — frontend:
 
 ```bash
 cd client
 npm run dev
 ```
 
-The Vite development server will print its local URL. The API will run on the configured server port (planned default: `3001`).
+Open the Vite URL shown in the terminal, normally `http://localhost:5173`. The frontend proxies `/api` to the backend at `http://localhost:3001`.
 
-### Configuration
+### Environment
 
-The backend will use environment variables for runtime configuration. Planned values:
+Copy `server/.env.example` if you want to customize the defaults:
 
 ```bash
 PORT=3001
 DATABASE_PATH=./data/dreaming.sqlite
 ```
 
-Never commit secrets or local database files.
+Local databases, environment files, dependencies, and build artifacts are ignored by Git.
 
-## Development principles
+## Verification
 
-1. Keep route handlers thin and testable.
-2. Inject adapters instead of importing concrete external dependencies throughout the app.
-3. Validate data at the API boundary.
-4. Prefer accessible, calm UI over unnecessary complexity.
-5. Keep the Day 1 surface area small enough to finish reliably within the 48-hour MVP window.
+```bash
+cd server && npm test
+cd ../client && npm run build
+```
 
-## Status
+## Day 2
 
-**Day 1 — planning and workspace initialization**
-
-See [`TODO.md`](./TODO.md) for the delivery checklist.
+Connect a real AI provider through `AIInterface` and an AI adapter. Do not couple provider SDK calls to routes, storage, or React components.
