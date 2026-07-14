@@ -57,7 +57,14 @@ The initial `dreams` table contains:
 | `id` | Unique dream identifier |
 | `timestamp` | When the dream was recorded |
 | `content` | The dream journal text |
-| `is_lucid` | Whether the dream was lucid (`0`/`1` in SQLite) |
+ | `is_lucid` | Boolean | Whether the dream was lucid (`0`/`1` in SQLite) |
+   | `lucidity_level` | Integer | Lucidity level from 1 to 5 |
+   | `dream_type` | String | One of `SAMSARIC`, `CLARITY`, or `CLEAR_LIGHT` |
+   | `themes` | Text | JSON array of keyword strings |
+   | `dream_signs` | Text | JSON array of dream-sign strings |
+   | `practice_notes` | Text | Notes about practices or follow-up reflection |
+
+
 
 ## Planned API
 
